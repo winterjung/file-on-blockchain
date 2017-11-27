@@ -1,0 +1,10 @@
+<!doctype html>
+<title>Uploaded</title>
+
+<body style="text-align: center">
+  <h1>Uploaded successfully</h1>
+  <p>
+    <b>{{ filename }}</b> is uploaded successfully.
+    <a href="{{ url_for('get_file', filename=filename) }}">GET FILE</a>
+  </p>
+</body>
