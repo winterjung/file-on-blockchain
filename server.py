@@ -1,10 +1,14 @@
 import os
+import hashlib
+import contract
 from flask import (Flask, request, redirect, url_for, send_from_directory,
                    render_template)
 from werkzeug import secure_filename
+from datetime import datetime
 
 UPLOAD_FOLDER = './'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+INS = None
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -23,15 +27,28 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            owner = request.form["owner"]
+            filehash = sha256_checksum(filename)
+            filesize = os.path.getsize(filename)
+            upload_on_blockchain(filehash=filehash,
+                                 filename=filename,
+                                 filesize=filesize,
+                                 owner=owner)
+
             return redirect(url_for('uploaded_file',
-                                    filename=filename))
+                                    filename=filename,
+                                    filehash=filehash))
     return render_template("upload.html")
 
 
 @app.route('/uploader')
 def uploaded_file():
     filename = request.args['filename']
-    return render_template("uploaded.html", filename=filename)
+    filehash = request.args['filehash']
+    return render_template("uploaded.html",
+                           filename=filename,
+                           filehash=filehash)
 
 
 @app.route('/uploads/<filename>')
@@ -39,5 +56,46 @@ def get_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
+@app.route('/info/<filehash>')
+def get_file_info(filehash):
+    file_info = contract.get_file_info(INS, filehash)
+    info = {
+        "file_name": file_info[0],
+        "upload_date": datetime.fromtimestamp(file_info[1]),
+        "file_size": file_info[2],
+    }
+    return render_template("info.html",
+                           filehash=filehash,
+                           info=info)
+
+
+@app.route('/check', methods=['POST'])
+def check_file():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filehash = sha256_checksum(filename)
+        is_exist = contract.check_file_exist(INS, filehash)
+        return render_template('check.html',
+                               is_exist=is_exist,
+                               filehash=filehash,
+                               filename=filename)
+
+
+# TODO: Use celery
+def upload_on_blockchain(**kwargs):
+    contract.upload(INS, **kwargs)
+
+
+def sha256_checksum(filename, block_size=65536):
+    sha256 = hashlib.sha256()
+    with open(filename, 'rb') as f:
+        for block in iter(lambda: f.read(block_size), b''):
+            sha256.update(block)
+    return sha256.hexdigest()
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    INS = contract.deploy("storage.sol", "FileHashStorage")
+    app.run(debug=False)
