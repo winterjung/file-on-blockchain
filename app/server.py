@@ -26,11 +26,12 @@ def upload_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(path)
 
             owner = request.form["owner"]
-            filehash = sha256_checksum(filename)
-            filesize = os.path.getsize(filename)
+            filehash = sha256_checksum(path)
+            filesize = os.path.getsize(path)
             upload_on_blockchain(filehash=filehash,
                                  filename=filename,
                                  filesize=filesize,
@@ -74,8 +75,9 @@ def check_file():
     file = request.files['file']
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        filehash = sha256_checksum(filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        filehash = sha256_checksum(path)
         is_exist = contract.check_file_exist(INS, filehash)
         return render_template('check.html',
                                is_exist=is_exist,
