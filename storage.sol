@@ -46,8 +46,8 @@ contract FileHashStorage is Owned {
 
 
     function upload(string personName, string fileHash, string fileName, uint fileSize) onlyOwner public {
-        owners[ownerID] = personName;
         ownerID++;
+        owners.push(personName);
         File memory f = File(fileName, now, fileSize);
         files[fileHash] = f;
         Upload(personName, fileHash, f);
@@ -64,7 +64,7 @@ contract FileHashStorage is Owned {
         return owners[id];
     }
 
-    function getFileInfo(string fileHash) onlyOwner public view returns (File) {
-        return files[fileHash];
+    function getFileInfo(string fileHash) onlyOwner public view returns (string, uint, uint) {
+        return (files[fileHash].name, files[fileHash].uploadDate, files[fileHash].size);
     }
 }
