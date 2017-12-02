@@ -6,7 +6,7 @@ from flask import (Flask, request, redirect, url_for, send_from_directory,
 from werkzeug import secure_filename
 from datetime import datetime
 
-UPLOAD_FOLDER = './'
+UPLOAD_FOLDER = './files/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 INS = None
 
