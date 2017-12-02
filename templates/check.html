@@ -1,0 +1,15 @@
+<!doctype html>
+<title>Check File</title>
+
+<body style="text-align: center">
+  <h1>Result</h1>
+  <p>
+    {% if is_exist %}
+      <h2><b>{{ filename }}</b> <font color="blue">exist</font> in blockchain!.</h2>
+      <a href="{{ url_for('get_file_info', filehash=filehash) }}">Show file info</a><br>
+      <a href="{{ url_for('get_file', filename=filename) }}">Get file</a><br>
+    {% else %}
+      <h2><b>{{ filename }}</b> <font color="red">doesn't exist</font> in blockchain!.</h2>
+    {% endif %}
+  </p>
+</body>

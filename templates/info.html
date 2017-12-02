@@ -1,0 +1,12 @@
+<!doctype html>
+<title>File info</title>
+
+<body style="text-align: center">
+  <h1>File Info</h1>
+  <p>
+    <b>{{ filehash }}</b> is {{ info.file_name }}.<br>
+    <a href="{{ url_for('get_file', filename=info.file_name) }}">GET FILE</a>
+  </p>
+  <p>Upload Date: {{ info.upload_date }}</p>
+  <p>File Size: {{ info.file_size }} bytes</p>
+</body>

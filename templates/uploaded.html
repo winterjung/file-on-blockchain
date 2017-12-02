@@ -4,7 +4,8 @@
 <body style="text-align: center">
   <h1>Uploaded successfully</h1>
   <p>
-    <b>{{ filename }}</b> is uploaded successfully.
+    <b>{{ filename }}</b> is uploaded successfully.<br>
     <a href="{{ url_for('get_file', filename=filename) }}">GET FILE</a>
   </p>
+  <h2>file's hash is <a href="{{ url_for('get_file_info', filehash=filehash) }}">{{ filehash }}</a></h2>
 </body>
